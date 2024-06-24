@@ -1,0 +1,39 @@
+﻿@layout LoginLayout
+@page "/register"
+@inject HttpClient Http
+@code {
+    private RegisterModel registerModel = new RegisterModel();
+    private string message = string.Empty;
+
+    private async Task RegisterUser()
+    {
+        var response = await Http.PostAsJsonAsync("api/users", registerModel);
+        if (response.IsSuccessStatusCode)
+        {
+            message = "Registration successful!";
+        }
+        else
+        {
+            message = "Registration failed.";
+        }
+    }
+}
+
+<h3>Register</h3>
+
+<div>
+    <input @bind="registerModel.Username" type="username" placeholder="Username" />
+    <input @bind="registerModel.Email" placeholder="Email" />
+    <input @bind="registerModel.Password" type="password" placeholder="Password" />
+    <button @onclick="RegisterUser">Register</button>
+</div>
+<div>@message</div>
+
+@code {
+    public class RegisterModel
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
+        public string Username { get; set; }
+    }
+}

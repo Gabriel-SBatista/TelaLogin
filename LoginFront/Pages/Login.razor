@@ -1,0 +1,41 @@
+﻿@layout LoginLayout
+@page "/"
+@using System.Text.Json
+@inject HttpClient Http
+@code {
+    private LoginModel loginModel = new LoginModel();
+    private string message = string.Empty;
+
+    private async Task LoginUser()
+    {
+        var serializedUser = JsonSerializer.Serialize(loginModel);
+
+        HttpRequestMessage httpRequestMessage = new HttpRequestMessage();
+
+        httpRequestMessage.Method = new HttpMethod("POST");
+        httpRequestMessage.RequestUri = new Uri("http://localhost:5209/api/users/login");
+        httpRequestMessage.Content = new StringContent(serializedUser);
+
+        httpRequestMessage.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+        var response = await Http.SendAsync(httpRequestMessage);
+    }
+}
+
+<h3>Login</h3>
+
+<div>
+    <input @bind="loginModel.Username" placeholder="Username" />
+    <input @bind="loginModel.Password" type="password" placeholder="Password" />
+    <button @onclick="LoginUser">Login</button>
+    <a href="/register" class="col-3">Cadastrar</a>
+</div>
+<div>@message</div>
+
+@code {
+    public class LoginModel
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
+}
