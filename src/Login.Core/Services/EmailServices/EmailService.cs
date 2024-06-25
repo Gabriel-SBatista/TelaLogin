@@ -55,12 +55,12 @@ namespace Login.Core.Services.EmailServices
             }
         }
 
-        public Email WriteEmail(string token)
+        public Email WriteEmail(int userId)
         {
             var email = new Email();
 
             email.Subject = "Email de confirmação de cadastro";
-            email.Body = $"Confirme sua conta acessando o link: https://localhost:5209/api/users/confirm-email/{token}";
+            email.Body = $"Confirme sua conta acessando o link: https://localhost:5209/api/users/confirm-email/{userId}";
 
             return email;
         }

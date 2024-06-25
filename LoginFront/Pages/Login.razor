@@ -1,41 +1,73 @@
-﻿@layout LoginLayout
-@page "/"
-@using System.Text.Json
+﻿@page "/login"
 @inject HttpClient Http
-@code {
-    private LoginModel loginModel = new LoginModel();
-    private string message = string.Empty;
+@inject NavigationManager NavigationManager
+@inject IAuthService AuthService
 
-    private async Task LoginUser()
-    {
-        var serializedUser = JsonSerializer.Serialize(loginModel);
-
-        HttpRequestMessage httpRequestMessage = new HttpRequestMessage();
-
-        httpRequestMessage.Method = new HttpMethod("POST");
-        httpRequestMessage.RequestUri = new Uri("http://localhost:5209/api/users/login");
-        httpRequestMessage.Content = new StringContent(serializedUser);
-
-        httpRequestMessage.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-
-        var response = await Http.SendAsync(httpRequestMessage);
-    }
+@if (ShowErrors)
+{
+    <div class="alert alert-danger" role="alert">
+        @foreach (var error in Errors)
+        {
+            <p>@error</p>
+        }
+    </div>
 }
 
-<h3>Login</h3>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mt-5">
+                <div class="card-header">
+                    <h3 class="text-center">Login</h3>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
 
-<div>
-    <input @bind="loginModel.Username" placeholder="Username" />
-    <input @bind="loginModel.Password" type="password" placeholder="Password" />
-    <button @onclick="LoginUser">Login</button>
-    <a href="/register" class="col-3">Cadastrar</a>
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <InputText id="username" class="form-control" @bind-Value="loginModel.Username" />
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary btn-block">Login</button>
+                            <button type="button" class="btn btn-secondary btn-block" @onclick="NavigateToRegister">Register</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div>@message</div>
 
 @code {
-    public class LoginModel
+    private LoginModel loginModel = new LoginModel();
+    private bool ShowErrors;
+    private List<string> Errors = new List<string>();
+
+    private async void HandleLogin()
     {
-        public string Username { get; set; }
-        public string Password { get; set; }
+        ShowErrors = false;
+
+        var result = await AuthService.Login(loginModel);
+
+        if (result.UserId != null)
+        {
+            NavigationManager.NavigateTo("/users");
+        }
+        else
+        {
+            ShowErrors = true;
+            Errors = result.Errors;
+        }
+    }
+
+    private void NavigateToRegister()
+    {
+        NavigationManager.NavigateTo("/register");
     }
 }

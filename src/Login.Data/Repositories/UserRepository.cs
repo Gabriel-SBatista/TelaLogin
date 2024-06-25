@@ -49,5 +49,10 @@ namespace Login.Data.Repositories
 
             await _context.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task<List<User>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.Users.ToListAsync(cancellationToken);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Login.Core.Requests;
 using Login.Core.Services.UserServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Login.Api.Controllers
@@ -14,6 +15,20 @@ namespace Login.Api.Controllers
         public UserController(IUserService userService)
         {
             _userService = userService;
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Get(CancellationToken cancellationToken)
+        {
+            var response = await _userService.GetUsersAsync(cancellationToken);
+
+            if (!response.Success)
+            {
+                return BadRequest(response.Messages);
+            }
+
+            return Ok(response.Data);
         }
 
         [HttpPost]
@@ -42,10 +57,10 @@ namespace Login.Api.Controllers
             return Ok(response.Data);
         }
 
-        [HttpPut("confirm-email")]
-        public async Task<IActionResult> Put(string token, CancellationToken cancellationToken)
+        [HttpPut("confirm-email/{userId:int}")]
+        public async Task<IActionResult> Put(int userId, CancellationToken cancellationToken)
         {
-            var response = await _userService.ConfirmEmailAsync(token, cancellationToken);
+            var response = await _userService.ConfirmEmailAsync(userId, cancellationToken);
 
             if (!response.Success)
             {

@@ -1,4 +1,5 @@
 ﻿using Login.Core.Entities;
+using Login.Core.Presenter;
 using Login.Core.Requests;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace Login.Core.Services.UserServices
     {
         Task<DefaultResult<User>> RegisterUserAsync(UserRegisterRequest userRequest, CancellationToken cancellationToken = default);
         Task<DefaultResult<TokenInfo>> LoginUserAsync(UserLoginRequest userLoginRequest, CancellationToken cancellationToken = default);
-        Task<DefaultResult<User>> ConfirmEmailAsync(string token, CancellationToken cancellationToken = default);
+        Task<DefaultResult<User>> ConfirmEmailAsync(int userToken, CancellationToken cancellationToken = default);
+        Task<DefaultResult<List<UserPresenter>>> GetUsersAsync(CancellationToken cancellationToken = default);
     }
 }

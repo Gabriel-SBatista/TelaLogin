@@ -3,19 +3,23 @@
     public class ErrorMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<ErrorMiddleware> _logger;
 
-        public ErrorMiddleware(RequestDelegate next)
+        public ErrorMiddleware(RequestDelegate next, ILogger<ErrorMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
             try
             {
+                _logger.LogInformation("Starting");
                 await _next.Invoke(context);
+                _logger.LogInformation("Finished with success");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 var errorId = Guid.NewGuid();
                 if (!context.Response.HasStarted)
@@ -28,6 +32,8 @@
                         ErrorId = errorId,
                         Messages = new List<string> { "Ocorreu um erro inesperado. Contate o suporte." }
                     });
+
+                    _logger.LogInformation(ex, "Finished with error");
                 }
             }
         }

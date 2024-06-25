@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Login.Core.Entities;
+using Login.Core.Presenter;
 using Login.Core.Repositories;
 using Login.Core.Requests;
 using Login.Core.Services.EmailServices;
@@ -68,9 +69,7 @@ namespace Login.Core.Services.UserServices
 
             var userCreated = await _userRepository.CreateAsync(user, cancellationToken);
 
-            var token = _tokenService.GenerateToken(userCreated);
-
-            var email = _emailService.WriteEmail(token);
+            var email = _emailService.WriteEmail(user.Id);
             await _emailService.SendEmailAsync(user.Email, email, cancellationToken);
 
             return new DefaultResult<User>(userCreated);
@@ -114,21 +113,9 @@ namespace Login.Core.Services.UserServices
             return new DefaultResult<TokenInfo>(tokenInfo);
         }
 
-        public async Task<DefaultResult<User>> ConfirmEmailAsync(string token, CancellationToken cancellationToken = default)
+        public async Task<DefaultResult<User>> ConfirmEmailAsync(int userId, CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrEmpty(token))
-            {
-                return new DefaultResult<User>("Requisição invalida");
-            }
-
-            var tokenInfo = _tokenService.ValidateToken(token);
-
-            if (tokenInfo == null)
-            {
-                return new DefaultResult<User>("Token invalido");
-            }
-
-            var user = await _userRepository.GetByIdAsync(tokenInfo.UserId, cancellationToken);
+            var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
             if (user == null)
             {
@@ -145,6 +132,20 @@ namespace Login.Core.Services.UserServices
             await _userRepository.UpdateAsync(user, cancellationToken);
 
             return new DefaultResult<User>(user);
+        }
+
+        public async Task<DefaultResult<List<UserPresenter>>> GetUsersAsync(CancellationToken cancellationToken = default)
+        {
+            var users = await _userRepository.GetAllAsync(cancellationToken);
+
+            var usersPresenter = new List<UserPresenter>();
+
+            foreach (var user in users)
+            {
+                usersPresenter.Add(new UserPresenter { Username = user.Username, Email = user.Email, CreatedAt = user.CreatedAt });
+            }
+
+            return new DefaultResult<List<UserPresenter>>(usersPresenter);
         }
     }
 }

@@ -1,0 +1,40 @@
+﻿@page "/users"
+@inject JsonPlaceHolderUser _jsonPlaceHolderUser;
+
+<h1>Users</h1>
+
+@if (users != null)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Username</th>
+                <th scope="col">Email</th>
+                <th scope="col">CreatedAt</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.Username</td>
+                    <td>@user.Email</td>
+                    <td>@user.CreatedAt</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <h1>Não Autorizado !!!</h1>
+}
+
+@code {
+    private List<User> users = new List<User>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await _jsonPlaceHolderUser.GetUsers();
+    }
+}

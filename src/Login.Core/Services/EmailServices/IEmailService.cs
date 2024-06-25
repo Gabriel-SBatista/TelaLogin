@@ -10,6 +10,6 @@ namespace Login.Core.Services.EmailServices
     public interface IEmailService
     {
         Task <bool> SendEmailAsync(string addressee, Email email, CancellationToken cancellationToken = default);
-        Email WriteEmail(string token);
+        Email WriteEmail(int userId);
     }
 }
