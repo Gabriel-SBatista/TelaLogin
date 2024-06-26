@@ -57,7 +57,7 @@ namespace Login.Api.Controllers
             return Ok(response.Data);
         }
 
-        [HttpPut("confirm-email/{userId:int}")]
+        [HttpGet("confirm-email/{userId:int}")]
         public async Task<IActionResult> Put(int userId, CancellationToken cancellationToken)
         {
             var response = await _userService.ConfirmEmailAsync(userId, cancellationToken);

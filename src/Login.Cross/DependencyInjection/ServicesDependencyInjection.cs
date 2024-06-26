@@ -5,6 +5,7 @@ using Login.Core.Services.TokenService;
 using Login.Core.Services.UserServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,8 +27,9 @@ namespace Login.Cross.DependencyInjection
                 int smtpPort = int.Parse(configuration.GetSection("SMTP").GetRequiredSection("Porta").Value);
                 string smtpUsername = configuration.GetSection("SMTP").GetRequiredSection("Username").Value;
                 string smtpPassword = configuration.GetSection("SMTP").GetRequiredSection("Password").Value;
+                var logger = provider.GetRequiredService<ILogger<EmailService>>();
 
-                return new EmailService(smtpServer, smtpPort, smtpUsername, smtpPassword);
+                return new EmailService(smtpServer, smtpPort, smtpUsername, smtpPassword, logger);
             });
             services.AddScoped<ITokenService, TokenService>(provider => {
                 string stringKey = configuration.GetSection("JWTToken").GetSection("StringKey").Value;

@@ -8,6 +8,7 @@ using Login.Core.Services.RabbitMQServices;
 using Login.Core.Services.TokenService;
 using Login.Core.Services.UserServices;
 using Login.Core.Validators;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -25,6 +26,7 @@ namespace Login.UnitTests.Services
         private readonly Mock<IEmailQueueService> _emailQueueServiceMock = new();
         private readonly Mock<ITokenService> _tokenServiceMock = new();
         private readonly Mock<IPasswordHasher> _passwordHasherMock = new();
+        private readonly Mock<ILogger<UserService>> _loggerMock = new();
 
         public UserServiceTests()
         {
@@ -34,7 +36,8 @@ namespace Login.UnitTests.Services
 
         private UserService GetService()
         {
-            return new UserService(_repositoryMock.Object, _userRegisterValidator, _userLoginValidator, _emailQueueServiceMock.Object, _tokenServiceMock.Object, _passwordHasherMock.Object);
+            return new UserService(_repositoryMock.Object, _userRegisterValidator, _userLoginValidator, _emailQueueServiceMock.Object, _tokenServiceMock.Object, 
+                _passwordHasherMock.Object, _loggerMock.Object);
         }
 
         [Fact]

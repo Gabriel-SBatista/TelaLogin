@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Login.Core.Presenter;
+using Microsoft.Extensions.Logging;
 
 namespace Login.Core.Services.EmailServices
 {
@@ -15,17 +16,21 @@ namespace Login.Core.Services.EmailServices
         private readonly int _smtpPort;
         private readonly string _smtpUsername;
         private readonly string _smtpPassword;
+        private readonly ILogger<EmailService> _logger;
 
-        public EmailService(string smtpServer, int smtpPort, string smtpUsername, string smtpPassword)
+        public EmailService(string smtpServer, int smtpPort, string smtpUsername, string smtpPassword, ILogger<EmailService> logger)
         {
             _smtpServer = smtpServer;
             _smtpPort = smtpPort;
             _smtpUsername = smtpUsername;
             _smtpPassword = smtpPassword;
+            _logger = logger;
         }
 
         public async Task<bool> SendEmailAsync(Email email, CancellationToken cancellationToken = default)
         {
+            _logger.LogInformation("starting sending email to {email}", email.To);
+
             try
             {
                 using (SmtpClient smtpClient = new SmtpClient(_smtpServer))
@@ -44,13 +49,16 @@ namespace Login.Core.Services.EmailServices
                         message.Body = email.Body;
 
                         await smtpClient.SendMailAsync(message, cancellationToken);
+
+                        _logger.LogInformation("email successfully sent to {email}", email.To);
                     }
                 }
 
                 return true;
             }
-            catch
+            catch (Exception ex) 
             {
+                _logger.LogError(ex, "error sending email to {email}", email.To);
                 return false;
             }
         }
