@@ -1,0 +1,42 @@
+﻿@model LoginFrontMVC.Models.RegisterModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h2>Register</h2>
+
+<div class="text-danger">
+    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+    {
+        <p>@error.ErrorMessage</p>
+    }
+</div>
+
+<form asp-action="Register" method="post">
+    <div class="form-group">
+        <label asp-for="Username"></label>
+        <input asp-for="Username" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Password"></label>
+        <input asp-for="Password" class="form-control" type="password" />
+        <meter max="5" id="strengthIndicator" value="0"></meter>
+        <span id="strengthText">Muito Fraca</span>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Register</button>
+    </div>
+</form>
+
+<div>
+    <a asp-action="Login">Login</a>
+</div>
+
+@section Scripts {
+    <script src="~/js/passwordStrength.js"></script>
+}

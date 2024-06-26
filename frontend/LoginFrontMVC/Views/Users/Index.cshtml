@@ -1,0 +1,25 @@
+﻿@model List<UserModel>
+
+<h2>Registered Users</h2>
+<form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+    <button type="submit">Logout</button>
+</form>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>CreatedAt</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Username</td>
+                <td>@user.Email</td>
+                <td>@user.CreatedAt</td>
+            </tr>
+        }
+    </tbody>
+</table>
