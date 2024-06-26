@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
+using Login.Core.Presenter;
 
-namespace Login.Core.Utils
+namespace Login.Core.Services.Hasher
 {
-    public static class PasswordHasher
+    public class PasswordHasher : IPasswordHasher
     {
-        public static (string Hash, string Salt) HashPassowrd(string password)
+        public Password HashPassowrd(string password)
         {
             byte[] saltBytes = new byte[16];
             RandomNumberGenerator.Fill(saltBytes);
@@ -27,10 +28,10 @@ namespace Login.Core.Utils
             byte[] hashBytes = argon2.GetBytes(32);
             string hash = Convert.ToBase64String(hashBytes);
 
-            return (Hash: hash, Salt: salt);
+            return new Password { Hash = hash, Salt = salt};
         }
 
-        public static bool VerifyPassword(string password, string hash, string salt)
+        public bool VerifyPassword(string password, string hash, string salt)
         {
             byte[] saltBytes = Convert.FromBase64String(salt);
 

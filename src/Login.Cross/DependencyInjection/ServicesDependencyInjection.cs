@@ -1,4 +1,6 @@
 ﻿using Login.Core.Services.EmailServices;
+using Login.Core.Services.Hasher;
+using Login.Core.Services.RabbitMQServices;
 using Login.Core.Services.TokenService;
 using Login.Core.Services.UserServices;
 using Microsoft.Extensions.Configuration;
@@ -15,6 +17,9 @@ namespace Login.Cross.DependencyInjection
     {
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IPasswordHasher, PasswordHasher>();
+
             services.AddScoped<IEmailService, EmailService>(provider =>
             {
                 string smtpServer = configuration.GetSection("SMTP").GetRequiredSection("Server").Value;
@@ -29,7 +34,11 @@ namespace Login.Cross.DependencyInjection
 
                 return new TokenService(stringKey);
             });
-            services.AddScoped<IUserService, UserService>();
+
+            var rabbitMqConnectionString = configuration.GetConnectionString("RabbitMQ");
+            services.AddSingleton<IEmailQueueService>(sp => new EmailQueueService(rabbitMqConnectionString));
+
+            services.AddHostedService<EmailConsumerService>();
 
             return services;
         }

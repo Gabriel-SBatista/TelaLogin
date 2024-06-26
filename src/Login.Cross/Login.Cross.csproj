@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Login.Core\Login.Core.csproj" />
     <ProjectReference Include="..\Login.Data\Login.Data.csproj" />
   </ItemGroup>
 

@@ -1,9 +1,9 @@
 using Login.Api.Middlewares;
+using Login.Core.Services.RabbitMQServices;
 using Login.Cross.DependencyInjection;
 using Login.Cross.HealthCheck;
 using Login.Cross.Logging;
 using Login.Cross.Swagger;
-using Login.Data.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Configuration;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,7 +35,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks()
-    .AddMonitoredItems(builder.Configuration);
+.AddMonitoredItems(builder.Configuration);
 
 builder.Services.AddSqlServer(builder.Configuration);
 builder.Services.AddRepositories();

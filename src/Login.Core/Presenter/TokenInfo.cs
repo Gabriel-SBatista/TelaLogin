@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Login.Core.Entities
+namespace Login.Core.Presenter
 {
     public class TokenInfo
     {

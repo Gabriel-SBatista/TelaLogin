@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Login.Core.Entities
+namespace Login.Core.Presenter
 {
     public class Email
     {
+        public string To { get; set; }
         public string Subject { get; set; }
         public string Body { get; set; }
     }

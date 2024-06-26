@@ -1,4 +1,4 @@
-﻿using Login.Core.Entities;
+﻿using Login.Core.Presenter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,6 @@ namespace Login.Core.Services.EmailServices
 {
     public interface IEmailService
     {
-        Task <bool> SendEmailAsync(string addressee, Email email, CancellationToken cancellationToken = default);
-        Email WriteEmail(int userId);
+        Task<bool> SendEmailAsync(Email email, CancellationToken cancellationToken = default);
     }
 }

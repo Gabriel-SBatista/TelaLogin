@@ -1,11 +1,11 @@
-﻿using Login.Core.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Login.Core.Presenter;
 
 namespace Login.Core.Services.EmailServices
 {
@@ -24,7 +24,7 @@ namespace Login.Core.Services.EmailServices
             _smtpPassword = smtpPassword;
         }
 
-        public async Task<bool> SendEmailAsync(string addressee, Email email, CancellationToken cancellationToken = default)
+        public async Task<bool> SendEmailAsync(Email email, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -38,12 +38,12 @@ namespace Login.Core.Services.EmailServices
                     {
                         message.From = new MailAddress(_smtpUsername);
 
-                        message.To.Add(addressee);
+                        message.To.Add(email.To);
 
                         message.Subject = email.Subject;
                         message.Body = email.Body;
 
-                        await smtpClient.SendMailAsync(message);
+                        await smtpClient.SendMailAsync(message, cancellationToken);
                     }
                 }
 
@@ -53,16 +53,6 @@ namespace Login.Core.Services.EmailServices
             {
                 return false;
             }
-        }
-
-        public Email WriteEmail(int userId)
-        {
-            var email = new Email();
-
-            email.Subject = "Email de confirmação de cadastro";
-            email.Body = $"Confirme sua conta acessando o link: https://localhost:5209/api/users/confirm-email/{userId}";
-
-            return email;
         }
     }
 }

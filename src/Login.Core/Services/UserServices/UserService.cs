@@ -3,9 +3,9 @@ using Login.Core.Entities;
 using Login.Core.Presenter;
 using Login.Core.Repositories;
 using Login.Core.Requests;
-using Login.Core.Services.EmailServices;
+using Login.Core.Services.Hasher;
+using Login.Core.Services.RabbitMQServices;
 using Login.Core.Services.TokenService;
-using Login.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,17 +19,19 @@ namespace Login.Core.Services.UserServices
         private readonly IUserRepository _userRepository;
         private readonly IValidator<UserRegisterRequest> _userRegisterValidator;
         private readonly IValidator<UserLoginRequest> _userLoginValidator;
-        private readonly IEmailService _emailService;
+        private readonly IEmailQueueService _emailQueueService;
         private readonly ITokenService _tokenService;
+        private readonly IPasswordHasher _passwordHasher;
 
         public UserService(IUserRepository userRepository, IValidator<UserRegisterRequest> userRegisterValidator, IValidator<UserLoginRequest> userLoginValidator, 
-            IEmailService emailService, ITokenService tokenService)
+            IEmailQueueService emailQueueService, ITokenService tokenService, IPasswordHasher passwordHasher)
         {
             _userRepository = userRepository;
             _userRegisterValidator = userRegisterValidator;
             _userLoginValidator = userLoginValidator;
-            _emailService = emailService;
+            _emailQueueService = emailQueueService;
             _tokenService = tokenService;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<DefaultResult<User>> RegisterUserAsync(UserRegisterRequest userRequest, CancellationToken cancellationToken = default)
@@ -55,27 +57,33 @@ namespace Login.Core.Services.UserServices
                 return new DefaultResult<User>("Esse nome de usuario ja existe");
             }
 
-            var (hash, salt) = PasswordHasher.HashPassowrd(userRequest.Password);
+            var hashedPassword = _passwordHasher.HashPassowrd(userRequest.Password);
 
             var user = new User
             {
                 Username = userRequest.Username,
                 Email = userRequest.Email,
-                PasswordHash = hash,
-                Salt = salt,
+                PasswordHash = hashedPassword.Hash,
+                Salt = hashedPassword.Salt,
                 EmailConfirmed = false,
                 CreatedAt = DateTime.UtcNow
             };
 
             var userCreated = await _userRepository.CreateAsync(user, cancellationToken);
 
-            var email = _emailService.WriteEmail(user.Id);
-            await _emailService.SendEmailAsync(user.Email, email, cancellationToken);
+            var email = new Email
+            {
+                Subject = "Email de confirmação",
+                Body = "Confirme sua conta acessando o link: ",
+                To = userCreated.Email
+            };
+
+            _emailQueueService.EnqueueEmail(email);
 
             return new DefaultResult<User>(userCreated);
         }
 
-        public async Task<DefaultResult<TokenInfo>> LoginUserAsync(UserLoginRequest userLoginRequest, CancellationToken cancellationToken)
+        public async Task<DefaultResult<TokenInfo>> LoginUserAsync(UserLoginRequest userLoginRequest, CancellationToken cancellationToken = default)
         {
             var result = _userLoginValidator.Validate(userLoginRequest);
 
@@ -91,7 +99,7 @@ namespace Login.Core.Services.UserServices
                 return new DefaultResult<TokenInfo>("Nome de usuario ou senha invalidos");
             }
 
-            bool validPassword = PasswordHasher.VerifyPassword(userLoginRequest.Password, user.PasswordHash, user.Salt);
+            bool validPassword = _passwordHasher.VerifyPassword(userLoginRequest.Password, user.PasswordHash, user.Salt);
 
             if (!validPassword)
             {

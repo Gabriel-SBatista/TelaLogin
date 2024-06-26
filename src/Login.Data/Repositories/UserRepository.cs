@@ -43,11 +43,13 @@ namespace Login.Data.Repositories
             return await _context.Users.FindAsync(id, cancellationToken);
         }
 
-        public async Task UpdateAsync(User user, CancellationToken cancellationToken = default)
+        public async Task<User> UpdateAsync(User user, CancellationToken cancellationToken = default)
         {
             _context.Update(user);
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            return user;
         }
 
         public async Task<List<User>> GetAllAsync(CancellationToken cancellationToken = default)
