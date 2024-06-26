@@ -46,7 +46,9 @@ Adicionar as credencias do SMTP:
 }
 ```
 
+## Fluxograma da arquitetura
 
+https://excalidraw.com/#json=vQDxV0m7j2n19LJDMzqbc,7kEHDFksZGZPVaDMRUxd2A
 
 ## Tecnologias e frameworks utilizados
 
