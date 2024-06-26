@@ -48,7 +48,7 @@ Adicionar as credencias do SMTP:
 
 ## Fluxograma da arquitetura
 
-![Fluxograma](assets/fluxograma.png)
+![Fluxograma](assets/fluxograma.PNG)             
 
 ## Tecnologias e frameworks utilizados
 
